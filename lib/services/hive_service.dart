@@ -1,0 +1,121 @@
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
+import '../models/user_config.dart';
+import '../models/daily_checkin.dart';
+
+class HiveService {
+  static const String _userConfigBox = 'user_config';
+  static const String _dailyCheckinsBox = 'daily_checkins';
+  static const String _configKey = 'config';
+
+  static Box<UserConfig>? _userBox;
+  static Box<DailyCheckIn>? _checkinsBox;
+
+  static Future<void> init() async {
+    await Hive.initFlutter();
+
+    // Register adapters
+    Hive.registerAdapter(UserConfigAdapter());
+    Hive.registerAdapter(DailyCheckInAdapter());
+
+    // Open boxes
+    _userBox = await Hive.openBox<UserConfig>(_userConfigBox);
+    _checkinsBox = await Hive.openBox<DailyCheckIn>(_dailyCheckinsBox);
+  }
+
+  // User Config methods
+  static UserConfig? getUserConfig() {
+    return _userBox?.get(_configKey);
+  }
+
+  static Future<void> saveUserConfig(UserConfig config) async {
+    await _userBox?.put(_configKey, config);
+  }
+
+  static bool hasUserConfig() {
+    return _userBox?.containsKey(_configKey) ?? false;
+  }
+
+  static Future<void> updateCheckinTime(int hour, int minute) async {
+    final config = getUserConfig();
+    if (config != null) {
+      config.checkinHour = hour;
+      config.checkinMinute = minute;
+      await config.save();
+    }
+  }
+
+  // Daily CheckIn methods
+  static String _getTodayKey() {
+    return DateFormat('yyyy-MM-dd').format(DateTime.now());
+  }
+
+  static Future<void> saveDailyCheckIn(DailyCheckIn checkIn) async {
+    final key = DateFormat('yyyy-MM-dd').format(checkIn.date);
+    await _checkinsBox?.put(key, checkIn);
+  }
+
+  static DailyCheckIn? getTodayCheckIn() {
+    final key = _getTodayKey();
+    return _checkinsBox?.get(key);
+  }
+
+  static bool hasCompletedToday() {
+    return getTodayCheckIn() != null;
+  }
+
+  static DailyCheckIn? getCheckInByDate(DateTime date) {
+    final key = DateFormat('yyyy-MM-dd').format(date);
+    return _checkinsBox?.get(key);
+  }
+
+  static List<DailyCheckIn> getAllCheckIns() {
+    return _checkinsBox?.values.toList() ?? [];
+  }
+
+  static Map<String, dynamic> getStats() {
+    final checkIns = getAllCheckIns();
+
+    if (checkIns.isEmpty) {
+      return {
+        'total_days': 0,
+        'current_streak': 0,
+        'perfect_days': 0,
+        'average_score': 0.0,
+      };
+    }
+
+    // Sort by date
+    checkIns.sort((a, b) => a.date.compareTo(b.date));
+
+    // Calculate total days
+    final totalDays = checkIns.length;
+
+    // Calculate perfect days (score = 4)
+    final perfectDays = checkIns.where((c) => c.score == 4).length;
+
+    // Calculate average score
+    final totalScore = checkIns.fold<int>(0, (sum, c) => sum + c.score);
+    final averageScore = totalScore / totalDays;
+
+    // Calculate current streak
+    int currentStreak = 0;
+    final today = DateTime.now();
+    DateTime checkDate = DateTime(today.year, today.month, today.day);
+
+    while (true) {
+      final checkIn = getCheckInByDate(checkDate);
+      if (checkIn == null) break;
+
+      currentStreak++;
+      checkDate = checkDate.subtract(const Duration(days: 1));
+    }
+
+    return {
+      'total_days': totalDays,
+      'current_streak': currentStreak,
+      'perfect_days': perfectDays,
+      'average_score': averageScore,
+    };
+  }
+}
