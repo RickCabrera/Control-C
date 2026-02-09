@@ -143,7 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'BIENVENIDO AL SISTEMA DE CONTROL DIARIO.',
+                      'BIENVENIDO.',
                       style: TextStyle(
                         fontSize: 14,
                         letterSpacing: 1,
