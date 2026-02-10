@@ -60,7 +60,7 @@ class DailyCheckIn extends HiveObject {
   static String getScoreDescription(int score) {
     switch (score) {
       case 4:
-        return 'Completaste todas las tareas críticas. Excelente trabajo.';
+        return 'Completaste todas las tareas críticas. Excelente trabajo. ;)';
       case 3:
         return 'Buen progreso, pero hay espacio para mejorar.';
       case 2:

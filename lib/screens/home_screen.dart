@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<String> _questions = [
     '¿Construí algo real?',
-    '¿Lo acerqué a usuarios / dinero / validación?',
+    '¿Lo acerqué a realidad / dinero / feedback?',
     '¿Trabajé en lo importante, no en relleno?',
     '¿Quedé en condiciones de volver mañana?',
   ];
@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('CHECK-IN GUARDADO'),
+        content: Text('REGISTRO GUARDADO'),
         backgroundColor: PipBoyColors.primaryDim,
       ),
     );
@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }),
         const SizedBox(height: 24),
         RetroButton(
-          label: 'GUARDAR CHECK-IN',
+          label: 'GUARDAR REGISTRO',
           onPressed: _saveCheckIn,
         ),
       ],
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final color = _getScoreColor(score);
 
     return RetroContainer(
-      title: 'CHECK-IN COMPLETADO',
+      title: 'REGISTRO DIARIO COMPLETADO',
       child: Column(
         children: [
           Container(
@@ -289,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildCompletedView()
               else ...[
                 const Text(
-                  'CHECK-IN DIARIO',
+                  'REGISTRO DIARIO',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -298,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'RESPONDE LAS 4 PREGUNTAS CRÍTICAS:',
+                  'LAS 4 METRICAS:',
                   style: TextStyle(
                     fontSize: 14,
                     letterSpacing: 1,

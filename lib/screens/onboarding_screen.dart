@@ -143,7 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'BIENVENIDO RICARDO.',
+                      'BIENVENIDO CABRERA.',
                       style: TextStyle(
                         fontSize: 14,
                         letterSpacing: 1,
@@ -152,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'RESPONDERÁS 4 PREGUNTAS CRÍTICAS CADA 24 HORAS.',
+                      'REGISTRAREMOS 4 PREGUNTAS CRÍTICAS CADA 24 HORAS.',
                       style: TextStyle(
                         fontSize: 14,
                         letterSpacing: 1,
@@ -212,7 +212,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       )
                     else
                       RetroButton(
-                        label: 'INICIAR SISTEMA',
+                        label: 'INICIAR CONTROL CABRERA',
                         onPressed: _saveAndContinue,
                       ),
                   ],

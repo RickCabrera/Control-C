@@ -4,9 +4,9 @@
 
 App de checklist diario minimalista con estética retro Pip-Boy (Fallout). El usuario responde 4 preguntas críticas cada 24 horas para mantener enfoque en lo importante.
 
-**Stack:** Flutter + Hive (local storage) + Notificaciones programadas  
-**Plataforma:** Android (offline-first)  
-**Estética:** Terminal verde fosforescente tipo Pip-Boy de Fallout
+**Stack:** Flutter + Hive (local storage) + Notificaciones programadas
+**Plataforma:** Android (offline-first)
+**Estética:** Terminal cyan eléctrico tipo Pip-Boy de Fallout
 
 ---
 
@@ -112,9 +112,9 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ```dart
 class PipBoyColors {
-  static const Color primary = Color(0xFF00FF41);        // Verde fosforescente
-  static const Color primaryDim = Color(0xFF008F11);     // Verde oscuro
-  static const Color primaryBright = Color(0xFF39FF14);  // Verde brillante
+  static const Color primary = Color(0xFF27F5DA);        // Cyan eléctrico
+  static const Color primaryDim = Color(0xFF1AB3A0);     // Cyan eléctrico oscuro
+  static const Color primaryBright = Color(0xFF5FFFF0);  // Cyan eléctrico brillante
   static const Color background = Color(0xFF0A0E0A);     // Negro verdoso
   static const Color surface = Color(0xFF1A1F1A);        // Gris verdoso
   static const Color surfaceVariant = Color(0xFF0F140F); // Más oscuro
@@ -129,20 +129,20 @@ class PipBoyColors {
 ### Widgets Personalizados
 
 **RetroButton:**
-- Borde verde de 2px
+- Borde cyan de 2px
 - Padding: 24h x 12v
 - Glow effect con BoxShadow
 - Estado `isSelected` para Sí/No
 - Texto en MAYÚSCULAS con letterSpacing: 2
 
 **RetroInput:**
-- Label: `> NOMBRE` (verde dim)
-- Borde verde de 2px
+- Label: `> NOMBRE` (cyan dim)
+- Borde cyan de 2px
 - Background: surfaceVariant
-- Placeholder: `_` (verde dim)
+- Placeholder: `_` (cyan dim)
 
 **RetroContainer:**
-- Borde verde de 2px con glow
+- Borde cyan de 2px con glow
 - Título opcional: `// TÍTULO` en header
 - Border bottom entre título y contenido
 
@@ -230,7 +230,7 @@ await NotificationService.showTestNotification();
 **Configuración Android:**
 - Channel ID: `daily_checkin`
 - Importance: High
-- Color: verde (#00FF41)
+- Color: cyan eléctrico (#27F5DA)
 - Mode: `exactAllowWhileIdle` (permite alarmas exactas)
 
 ---
@@ -404,8 +404,8 @@ adb logcat | grep flutter
 
 - **Textos en MAYÚSCULAS** con letterSpacing para efecto terminal
 - **Prefijos `>` y `//`** para labels y títulos
-- **Glow effects** sutiles en bordes verdes
-- **Loading states** con CircularProgressIndicator verde
+- **Glow effects** sutiles en bordes cyan
+- **Loading states** con CircularProgressIndicator cyan
 - **SnackBars** con colores según estado (success/warning/error)
 - **Sin animaciones excesivas** - estética minimalista retro
 
