@@ -5,7 +5,7 @@ import '../widgets/retro_container.dart';
 import '../widgets/retro_button.dart';
 import '../models/user_config.dart';
 import '../services/hive_service.dart';
-import '../services/notification_service.dart';
+import '../services/notification_service.dart';    
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

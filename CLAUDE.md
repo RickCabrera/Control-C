@@ -112,9 +112,9 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ```dart
 class PipBoyColors {
-  static const Color primary = Color(0xFF27F5DA);        // Cyan eléctrico
-  static const Color primaryDim = Color(0xFF1AB3A0);     // Cyan eléctrico oscuro
-  static const Color primaryBright = Color(0xFF5FFFF0);  // Cyan eléctrico brillante
+  static const Color primary = Color(0xFF00FFD5);        // Cyan brillante
+  static const Color primaryDim = Color(0xFF00B89A);     // Cyan oscuro
+  static const Color primaryBright = Color(0xFF4DFFEB);  // Cyan muy brillante
   static const Color background = Color(0xFF0A0E0A);     // Negro verdoso
   static const Color surface = Color(0xFF1A1F1A);        // Gris verdoso
   static const Color surfaceVariant = Color(0xFF0F140F); // Más oscuro
