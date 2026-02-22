@@ -16,8 +16,12 @@ class HiveService {
   static Box<WeeklyReflection>? _weeklyBox;
   static Box<String>? _prioritiesBox;
 
-  static Future<void> init() async {
-    await Hive.initFlutter();
+  static Future<void> init([String? path]) async {
+    if (path != null) {
+      await Hive.initFlutter(path);
+    } else {
+      await Hive.initFlutter();
+    }
 
     // Register adapters
     Hive.registerAdapter(UserConfigAdapter());

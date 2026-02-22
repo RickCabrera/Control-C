@@ -358,7 +358,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWeeklyReflectionReminder() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         border: Border.all(
@@ -377,21 +378,24 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.warning_amber_rounded,
                 color: PipBoyColors.warning,
                 size: 24,
               ),
-              SizedBox(width: 12),
-              Text(
-                'REFLEXIÓN SEMANAL PENDIENTE',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                  color: PipBoyColors.warning,
+              const SizedBox(width: 12),
+              Flexible(
+                child: const Text(
+                  'REFLEXIÓN SEMANAL PENDIENTE',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                    color: PipBoyColors.warning,
+                  ),
                 ),
               ),
             ],

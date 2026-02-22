@@ -36,7 +36,7 @@ class DailyCheckIn extends HiveObject {
     required this.question4,
     required this.score,
     required this.timestamp,
-    required this.criticalPriority,
+    this.criticalPriority = '',
   });
 
   // Semantic getters for better code readability

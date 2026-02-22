@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PipBoyColors {
-  static const Color primary = Color(0xFF00FFD5);
-  static const Color primaryDim = Color(0xFF00B89A);
-  static const Color primaryBright = Color(0xFF4DFFEB);
-  static const Color background = Color(0xFF0A0E0A);
-  static const Color surface = Color(0xFF1A1F1A);
-  static const Color surfaceVariant = Color(0xFF0F140F);
+  static const Color primary = Color(0xFF0300FF);
+  static const Color primaryDim = Color(0xFF0200B3);
+  static const Color primaryBright = Color(0xFF4D52FF);
+  static const Color background = Color(0xFF0A0A0E);
+  static const Color surface = Color(0xFF0F0F1A);
+  static const Color surfaceVariant = Color(0xFF0A0A14);
   static const Color warning = Color(0xFFFFB800);
   static const Color error = Color(0xFFFF0000);
 }

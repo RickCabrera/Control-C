@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'theme/pip_boy_theme.dart';
 import 'services/hive_service.dart';
 import 'services/notification_service.dart';
@@ -13,8 +14,23 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  await HiveService.init();
-  await NotificationService.init();
+  try {
+    final appDocumentDir = await getApplicationDocumentsDirectory();
+    await HiveService.init(appDocumentDir.path);
+  } catch (e) {
+    debugPrint('Hive init error: $e');
+    try {
+      await HiveService.init(null);
+    } catch (e2) {
+      debugPrint('Hive fallback init error: $e2');
+    }
+  }
+
+  try {
+    await NotificationService.init();
+  } catch (e) {
+    debugPrint('Notification init error: $e');
+  }
 
   runApp(const ControlCabreraApp());
 }

@@ -13,22 +13,26 @@ class NotificationService {
       'Notifications for daily check-in reminders';
 
   static Future<void> init() async {
-    tz.initializeTimeZones();
+    try {
+      tz.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-    );
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+      );
 
-    await _notifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: (details) {
-        print('Notification tapped: ${details.payload}');
-      },
-    );
+      await _notifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (details) {
+          print('Notification tapped: ${details.payload}');
+        },
+      );
 
-    await _requestPermissions();
+      await _requestPermissions();
+    } catch (e) {
+      debugPrint('Notification init error: $e');
+    }
   }
 
   static Future<void> _requestPermissions() async {
@@ -73,7 +77,7 @@ class NotificationService {
           channelDescription: _channelDescription,
           importance: Importance.high,
           priority: Priority.high,
-          color: const Color(0xFF00FFD5),
+          color: const Color(0xFF0300C2),
           icon: '@mipmap/ic_launcher',
         ),
         iOS: const DarwinNotificationDetails(
@@ -129,7 +133,7 @@ class NotificationService {
           channelDescription: _channelDescription,
           importance: Importance.high,
           priority: Priority.high,
-          color: const Color(0xFF00FFD5),
+          color: const Color(0xFF0300C2),
         ),
       ),
     );

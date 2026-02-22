@@ -24,7 +24,7 @@ class DailyCheckInAdapter extends TypeAdapter<DailyCheckIn> {
       question4: fields[4] as bool,
       score: fields[5] as int,
       timestamp: fields[6] as DateTime,
-      criticalPriority: fields[7] as String,
+      criticalPriority: fields[7] as String? ?? '',
     );
   }
 
