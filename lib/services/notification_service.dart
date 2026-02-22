@@ -13,27 +13,21 @@ class NotificationService {
       'Notifications for daily check-in reminders';
 
   static Future<void> init() async {
-    // Initialize timezone
     tz.initializeTimeZones();
 
-    // Android initialization settings
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // iOS initialization settings
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
 
     const initSettings = InitializationSettings(
       android: androidSettings,
-      iOS: iosSettings,
     );
 
-    await _notifications.initialize(initSettings);
+    await _notifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (details) {
+        print('Notification tapped: ${details.payload}');
+      },
+    );
 
-    // Request permissions (Android 13+)
     await _requestPermissions();
   }
 
@@ -44,7 +38,6 @@ class NotificationService {
 
     if (androidPlugin != null) {
       await androidPlugin.requestNotificationsPermission();
-      await androidPlugin.requestExactAlarmsPermission();
     }
 
     final iosPlugin =
@@ -70,7 +63,7 @@ class NotificationService {
     // Schedule new notification
     await _notifications.zonedSchedule(
       0, // Notification ID
-      'CONTROL CABRERA',
+      'COMANDO CABRERA',
       '¿Construiste algo real hoy? Es hora de tu check-in diario.',
       _nextInstanceOfTime(hour, minute),
       NotificationDetails(
@@ -116,13 +109,18 @@ class NotificationService {
   }
 
   static Future<void> cancelAllNotifications() async {
-    await _notifications.cancelAll();
+    try {
+      await _notifications.cancelAll();
+    } catch (e) {
+      print('Error cancelando notificaciones: $e');
+      // Continuar de todos modos
+    }
   }
 
   static Future<void> showTestNotification() async {
     await _notifications.show(
       999,
-      'TEST - CONTROL CABRERA',
+      'TEST - COMANDO CABRERA',
       'Esta es una notificación de prueba.',
       NotificationDetails(
         android: AndroidNotificationDetails(

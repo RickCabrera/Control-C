@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import '../theme/pip_boy_theme.dart';
 import '../widgets/retro_button.dart';
 import '../widgets/retro_container.dart';
+import '../widgets/retro_input.dart';
 import '../models/daily_checkin.dart';
 import '../models/user_config.dart';
 import '../services/hive_service.dart';
 import 'settings_screen.dart';
+import 'weekly_reflection_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,17 +20,34 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _hasCompleted = false;
   DailyCheckIn? _todayCheckIn;
   UserConfig? _userConfig;
+  bool _hasWeeklyReflection = false;
 
+  // Critical priority
+  final TextEditingController _criticalPriorityController = TextEditingController();
+
+  // Answers
   bool? _answer1;
   bool? _answer2;
   bool? _answer3;
   bool? _answer4;
 
-  final List<String> _questions = [
-    '¿Construí algo real?',
-    '¿Lo acerqué a realidad / dinero / feedback?',
-    '¿Trabajé en lo importante, no en relleno?',
-    '¿Quedé en condiciones de volver mañana?',
+  final List<Map<String, String>> _questions = [
+    {
+      'question': '¿Hice una iteración concreta y visible?',
+      'hint': 'Código · Documento · Investigación aplicada · Decisión estratégica · Prototipo · Esquema',
+    },
+    {
+      'question': '¿Reduje incertidumbre hoy?',
+      'hint': 'Validar hipótesis · Hablar con alguien · Probar algo · Medir algo · Confirmar que una idea no funciona',
+    },
+    {
+      'question': '¿Ejecuté la prioridad crítica?',
+      'hint': 'Cada día defines una sola prioridad crítica antes de empezar',
+    },
+    {
+      'question': '¿Dejé definido el siguiente paso?',
+      'hint': 'Volver es fácil cuando sabes exactamente qué hacer',
+    },
   ];
 
   @override
@@ -37,18 +56,39 @@ class _HomeScreenState extends State<HomeScreen> {
     _checkTodayStatus();
   }
 
+  @override
+  void dispose() {
+    _criticalPriorityController.dispose();
+    super.dispose();
+  }
+
   void _checkTodayStatus() {
     final checkIn = HiveService.getTodayCheckIn();
     final config = HiveService.getUserConfig();
+    final hasWeekly = HiveService.hasCompletedThisWeek();
 
     setState(() {
       _hasCompleted = checkIn != null;
       _todayCheckIn = checkIn;
       _userConfig = config;
+      _hasWeeklyReflection = hasWeekly;
     });
   }
 
   Future<void> _saveCheckIn() async {
+    // Validate critical priority
+    final criticalPriority = _criticalPriorityController.text.trim();
+    if (criticalPriority.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ERROR: DEFINE LA PRIORIDAD CRÍTICA'),
+          backgroundColor: PipBoyColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Validate all questions answered
     if (_answer1 == null ||
         _answer2 == null ||
         _answer3 == null ||
@@ -77,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
       question4: _answer4!,
       score: score,
       timestamp: DateTime.now(),
+      criticalPriority: criticalPriority,
     );
 
     await HiveService.saveDailyCheckIn(checkIn);
@@ -102,7 +143,62 @@ class _HomeScreenState extends State<HomeScreen> {
     return PipBoyColors.error;
   }
 
+  Widget _buildBeforeStartSection() {
+    return RetroContainer(
+      title: 'ANTES DE EMPEZAR',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '2 MINUTOS',
+            style: TextStyle(
+              fontSize: 12,
+              letterSpacing: 1,
+              color: PipBoyColors.primaryDim,
+            ),
+          ),
+          const SizedBox(height: 16),
+          RetroInput(
+            label: '¿CUÁL ES LA PRIORIDAD CRÍTICA HOY?',
+            controller: _criticalPriorityController,
+            hintText: 'DEFINE UNA SOLA COSA',
+            maxLines: 3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIterationInfoSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: PipBoyColors.primaryDim,
+          width: 1,
+        ),
+        color: PipBoyColors.surfaceVariant,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'ITERACIÓN MÍNIMA: 20–60 MIN',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+          
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuestionCard(int index, bool? answer, Function(bool) onAnswer) {
+    final questionData = _questions[index];
+
     return RetroContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -118,11 +214,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _questions[index].toUpperCase(),
+            questionData['question']!.toUpperCase(),
             style: const TextStyle(
               fontSize: 16,
               letterSpacing: 1,
               fontWeight: FontWeight.bold,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            questionData['hint']!,
+            style: const TextStyle(
+              fontSize: 12,
+              letterSpacing: 0.5,
+              color: PipBoyColors.primaryDim,
               height: 1.4,
             ),
           ),
@@ -178,6 +284,123 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildWeeklyReflectionReminder() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: PipBoyColors.warning,
+          width: 2,
+        ),
+        color: PipBoyColors.warning.withOpacity(0.1),
+        boxShadow: [
+          BoxShadow(
+            color: PipBoyColors.warning.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: PipBoyColors.warning,
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'REFLEXIÓN SEMANAL PENDIENTE',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  color: PipBoyColors.warning,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Es momento de revisar si sigues persiguiendo algo con potencial real.',
+            style: TextStyle(
+              fontSize: 14,
+              letterSpacing: 0.5,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          RetroButton(
+            label: 'COMPLETAR REFLEXIÓN',
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WeeklyReflectionScreen(),
+                ),
+              );
+              _checkTodayStatus();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnswersList() {
+    if (_todayCheckIn == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        const Text(
+          '// RESPUESTAS DEL DÍA',
+          style: TextStyle(
+            fontSize: 14,
+            letterSpacing: 2,
+            color: PipBoyColors.primaryDim,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildAnswerRow('Iteración concreta y visible', _todayCheckIn!.iterationDone),
+        _buildAnswerRow('Reducir incertidumbre', _todayCheckIn!.reducedUncertainty),
+        _buildAnswerRow('Ejecutar prioridad crítica', _todayCheckIn!.executedPriority),
+        _buildAnswerRow('Siguiente paso definido', _todayCheckIn!.nextStepDefined),
+      ],
+    );
+  }
+
+  Widget _buildAnswerRow(String label, bool value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(
+            value ? Icons.check_circle : Icons.cancel,
+            color: value ? PipBoyColors.primary : PipBoyColors.error,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 13,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCompletedView() {
     if (_todayCheckIn == null) return const SizedBox.shrink();
 
@@ -186,62 +409,86 @@ class _HomeScreenState extends State<HomeScreen> {
     final description = DailyCheckIn.getScoreDescription(score);
     final color = _getScoreColor(score);
 
-    return RetroContainer(
-      title: 'REGISTRO DIARIO COMPLETADO',
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              border: Border.all(color: color, width: 2),
-              color: color.withOpacity(0.1),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '$score/4',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                    letterSpacing: 4,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            description.toUpperCase(),
-            textAlign: TextAlign.center,
+    return Column(
+      children: [
+        // Weekly reflection reminder if not completed
+        if (!_hasWeeklyReflection) _buildWeeklyReflectionReminder(),
+
+        // Priority of the day
+        RetroContainer(
+          title: 'PRIORIDAD DE HOY',
+          child: Text(
+            _todayCheckIn!.criticalPriority,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               letterSpacing: 1,
               height: 1.5,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            'VUELVE MAÑANA PARA TU PRÓXIMO CHECK-IN.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1,
-              color: PipBoyColors.primaryDim,
-            ),
+        ),
+        const SizedBox(height: 24),
+
+        // Score
+        RetroContainer(
+          title: 'REGISTRO DIARIO COMPLETADO',
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  border: Border.all(color: color, width: 2),
+                  color: color.withOpacity(0.1),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '$score/4',
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        letterSpacing: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      message,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  letterSpacing: 0.5,
+                  height: 1.5,
+                ),
+              ),
+              _buildAnswersList(),
+              const SizedBox(height: 24),
+              const Text(
+                'VUELVE MAÑANA PARA TU PRÓXIMO CHECK-IN.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 1,
+                  color: PipBoyColors.primaryDim,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -249,9 +496,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'CONTROL CABRERA',
-          style: const TextStyle(letterSpacing: 3),
+        title: const Text(
+          'COMANDO CABRERA',
+          style: TextStyle(letterSpacing: 3),
         ),
         actions: [
           IconButton(
@@ -288,24 +535,19 @@ class _HomeScreenState extends State<HomeScreen> {
               if (_hasCompleted)
                 _buildCompletedView()
               else ...[
+                _buildBeforeStartSection(),
+                const SizedBox(height: 24),
+                _buildIterationInfoSection(),
+                const SizedBox(height: 24),
                 const Text(
-                  'REGISTRO DIARIO',
+                  ' 4 MÉTRICAS',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'LAS 4 METRICAS:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    letterSpacing: 1,
-                    color: PipBoyColors.primaryDim,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 _buildQuestionCards(),
               ],
             ],

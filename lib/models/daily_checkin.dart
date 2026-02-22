@@ -25,6 +25,9 @@ class DailyCheckIn extends HiveObject {
   @HiveField(6)
   DateTime timestamp;
 
+  @HiveField(7)
+  String criticalPriority;
+
   DailyCheckIn({
     required this.date,
     required this.question1,
@@ -33,7 +36,14 @@ class DailyCheckIn extends HiveObject {
     required this.question4,
     required this.score,
     required this.timestamp,
+    required this.criticalPriority,
   });
+
+  // Semantic getters for better code readability
+  bool get iterationDone => question1;
+  bool get reducedUncertainty => question2;
+  bool get executedPriority => question3;
+  bool get nextStepDefined => question4;
 
   static int calculateScore(bool q1, bool q2, bool q3, bool q4) {
     int score = 0;
@@ -47,11 +57,11 @@ class DailyCheckIn extends HiveObject {
   static String getScoreMessage(int score) {
     switch (score) {
       case 4:
-        return 'DÍA LEGENDARIO';
+        return 'DÍA ÉLITE';
       case 3:
-        return 'BUEN DÍA';
+        return 'EXCELENTE';
       case 2:
-        return 'ALERTA';
+        return 'SIGUES EN JUEGO';
       default:
         return 'REVISA QUÉ PASÓ';
     }
@@ -60,13 +70,13 @@ class DailyCheckIn extends HiveObject {
   static String getScoreDescription(int score) {
     switch (score) {
       case 4:
-        return 'Completaste todas las tareas críticas. Excelente trabajo. ;)';
+        return 'Ejecutaste tu prioridad, iteraste, redujiste incertidumbre y dejaste el siguiente paso listo. Día perfecto.';
       case 3:
-        return 'Buen progreso, pero hay espacio para mejorar.';
+        return 'Avance sólido. Una métrica falló pero mantienes momentum. Ajusta y sigue.';
       case 2:
-        return 'Necesitas enfocarte más en lo importante.';
+        return 'Dos métricas fallaron. Todavía hay progreso pero necesitas más foco en lo crítico.';
       default:
-        return 'Reflexiona sobre qué te impidió avanzar.';
+        return 'Día difuso. Revisa si trabajaste en lo importante o te dispersaste en tareas secundarias.';
     }
   }
 }

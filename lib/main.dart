@@ -27,7 +27,7 @@ class ControlCabreraApp extends StatelessWidget {
     final hasConfig = HiveService.hasUserConfig();
 
     return MaterialApp(
-      title: 'Control Cabrera',
+      title: 'Comando Cabrera',
       theme: PipBoyTheme.theme,
       debugShowCheckedModeBanner: false,
       home: hasConfig ? const HomeScreen() : const OnboardingScreen(),

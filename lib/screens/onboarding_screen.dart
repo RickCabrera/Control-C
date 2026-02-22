@@ -119,7 +119,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               const SizedBox(height: 40),
               const Text(
-                'CONTROL CABRERA',
+                'COMANDO CABRERA',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'SISTEMA DE SEGUIMIENTO V1.0',
+                'SISTEMA DE COMANDO V2.0',
                 style: TextStyle(
                   fontSize: 14,
                   letterSpacing: 2,
@@ -152,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'REGISTRAREMOS 4 PREGUNTAS CRÍTICAS CADA 24 HORAS.',
+                      'DEFINE UNA PRIORIDAD CRÍTICA. ITERA. RESPONDE 4 PREGUNTAS. CADA DÍA.',
                       style: TextStyle(
                         fontSize: 14,
                         letterSpacing: 1,
@@ -212,7 +212,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       )
                     else
                       RetroButton(
-                        label: 'INICIAR CONTROL CABRERA',
+                        label: 'INICIAR COMANDO CABRERA',
                         onPressed: _saveAndContinue,
                       ),
                   ],

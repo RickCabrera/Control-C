@@ -5,7 +5,8 @@ import '../widgets/retro_container.dart';
 import '../widgets/retro_button.dart';
 import '../models/user_config.dart';
 import '../services/hive_service.dart';
-import '../services/notification_service.dart';    
+import '../services/notification_service.dart';
+import 'weekly_reflection_screen.dart';    
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -210,6 +211,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               RetroContainer(
+                title: 'REFLEXIÓN SEMANAL',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Revisa si estás persiguiendo potencial real o solo entreteniéndote.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        letterSpacing: 0.5,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    RetroButton(
+                      label: 'IR A REFLEXIÓN SEMANAL',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WeeklyReflectionScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              RetroContainer(
                 title: 'ESTADÍSTICAS',
                 child: Column(
                   children: [
@@ -231,6 +261,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _buildStatRow(
                       'Promedio',
                       _stats!['average_score'].toStringAsFixed(1) + '/4.0',
+                    ),
+                    const Divider(color: PipBoyColors.primaryDim, height: 24),
+                    _buildStatRow(
+                      'Semanas reflexionadas',
+                      HiveService.getAllWeeklyReflections().length.toString(),
                     ),
                   ],
                 ),

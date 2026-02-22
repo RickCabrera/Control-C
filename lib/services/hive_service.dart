@@ -2,14 +2,17 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import '../models/user_config.dart';
 import '../models/daily_checkin.dart';
+import '../models/weekly_reflection.dart';
 
 class HiveService {
   static const String _userConfigBox = 'user_config';
   static const String _dailyCheckinsBox = 'daily_checkins';
+  static const String _weeklyReflectionsBox = 'weekly_reflections';
   static const String _configKey = 'config';
 
   static Box<UserConfig>? _userBox;
   static Box<DailyCheckIn>? _checkinsBox;
+  static Box<WeeklyReflection>? _weeklyBox;
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -17,10 +20,12 @@ class HiveService {
     // Register adapters
     Hive.registerAdapter(UserConfigAdapter());
     Hive.registerAdapter(DailyCheckInAdapter());
+    Hive.registerAdapter(WeeklyReflectionAdapter());
 
     // Open boxes
     _userBox = await Hive.openBox<UserConfig>(_userConfigBox);
     _checkinsBox = await Hive.openBox<DailyCheckIn>(_dailyCheckinsBox);
+    _weeklyBox = await Hive.openBox<WeeklyReflection>(_weeklyReflectionsBox);
   }
 
   // User Config methods
@@ -117,5 +122,47 @@ class HiveService {
       'perfect_days': perfectDays,
       'average_score': averageScore,
     };
+  }
+
+  // Weekly Reflection methods
+  static String _getCurrentWeekKey() {
+    final now = DateTime.now();
+
+    // Calculate ISO week number
+    final dayOfWeek = now.weekday; // Monday = 1, Sunday = 7
+    final thursday = now.subtract(Duration(days: dayOfWeek - 4));
+
+    // Get the year of the Thursday (this is the ISO year)
+    final isoYear = thursday.year;
+
+    // Find the first Thursday of the ISO year
+    final jan4 = DateTime(isoYear, 1, 4);
+    final firstThursday = jan4.subtract(Duration(days: jan4.weekday - 4));
+
+    // Calculate week number
+    final weekNumber = ((thursday.difference(firstThursday).inDays / 7).floor() + 1);
+
+    return '$isoYear-W${weekNumber.toString().padLeft(2, '0')}';
+  }
+
+  static Future<void> saveWeeklyReflection(WeeklyReflection reflection) async {
+    await _weeklyBox?.put(reflection.weekKey, reflection);
+  }
+
+  static WeeklyReflection? getThisWeekReflection() {
+    final key = _getCurrentWeekKey();
+    return _weeklyBox?.get(key);
+  }
+
+  static bool hasCompletedThisWeek() {
+    return getThisWeekReflection() != null;
+  }
+
+  static List<WeeklyReflection> getAllWeeklyReflections() {
+    return _weeklyBox?.values.toList() ?? [];
+  }
+
+  static WeeklyReflection? getWeeklyReflectionByKey(String weekKey) {
+    return _weeklyBox?.get(weekKey);
   }
 }

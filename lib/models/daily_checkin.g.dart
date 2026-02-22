@@ -24,13 +24,14 @@ class DailyCheckInAdapter extends TypeAdapter<DailyCheckIn> {
       question4: fields[4] as bool,
       score: fields[5] as int,
       timestamp: fields[6] as DateTime,
+      criticalPriority: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, DailyCheckIn obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class DailyCheckInAdapter extends TypeAdapter<DailyCheckIn> {
       ..writeByte(5)
       ..write(obj.score)
       ..writeByte(6)
-      ..write(obj.timestamp);
+      ..write(obj.timestamp)
+      ..writeByte(7)
+      ..write(obj.criticalPriority);
   }
 
   @override
