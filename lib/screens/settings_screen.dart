@@ -6,7 +6,8 @@ import '../widgets/retro_button.dart';
 import '../models/user_config.dart';
 import '../services/hive_service.dart';
 import '../services/notification_service.dart';
-import 'weekly_reflection_screen.dart';    
+import 'weekly_reflection_screen.dart';
+import 'records_screen.dart';    
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -240,6 +241,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               RetroContainer(
+                title: 'REGISTROS',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Revisa tu historial completo de registros diarios y reflexiones semanales.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        letterSpacing: 0.5,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    RetroButton(
+                      label: 'VER HISTORIAL',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RecordsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              RetroContainer(
                 title: 'ESTADÍSTICAS',
                 child: Column(
                   children: [
@@ -261,6 +291,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _buildStatRow(
                       'Promedio',
                       _stats!['average_score'].toStringAsFixed(1) + '/4.0',
+                    ),
+                    const Divider(color: PipBoyColors.primaryDim, height: 24),
+                    _buildStatRow(
+                      'Prioridad ejecutada',
+                      '${_stats!['executed_priority_count']}/${_stats!['executed_priority_total']}',
                     ),
                     const Divider(color: PipBoyColors.primaryDim, height: 24),
                     _buildStatRow(

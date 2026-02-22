@@ -17,7 +17,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _hasCompleted = false;
+  bool _hasPriority = false;      // ¿Guardó prioridad hoy?
+  bool _hasCompleted = false;     // ¿Completó las 4 métricas hoy?
+  String? _todayPriority;         // Prioridad guardada hoy
   DailyCheckIn? _todayCheckIn;
   UserConfig? _userConfig;
   bool _hasWeeklyReflection = false;
@@ -63,20 +65,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _checkTodayStatus() {
+    final priority = HiveService.getTodayPriority();
     final checkIn = HiveService.getTodayCheckIn();
     final config = HiveService.getUserConfig();
     final hasWeekly = HiveService.hasCompletedThisWeek();
 
     setState(() {
+      _hasPriority = priority != null;
+      _todayPriority = priority;
       _hasCompleted = checkIn != null;
       _todayCheckIn = checkIn;
       _userConfig = config;
       _hasWeeklyReflection = hasWeekly;
+      // Si ya hay prioridad guardada, llena el controller para mostrarlo
+      if (priority != null) _criticalPriorityController.text = priority;
     });
   }
 
-  Future<void> _saveCheckIn() async {
-    // Validate critical priority
+  Future<void> _savePriority() async {
     final criticalPriority = _criticalPriorityController.text.trim();
     if (criticalPriority.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -88,6 +94,24 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    await HiveService.saveTodayPriority(criticalPriority);
+
+    setState(() {
+      _hasPriority = true;
+      _todayPriority = criticalPriority;
+    });
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('PRIORIDAD GUARDADA'),
+        backgroundColor: PipBoyColors.primaryDim,
+      ),
+    );
+  }
+
+  Future<void> _saveCheckIn() async {
     // Validate all questions answered
     if (_answer1 == null ||
         _answer2 == null ||
@@ -117,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
       question4: _answer4!,
       score: score,
       timestamp: DateTime.now(),
-      criticalPriority: criticalPriority,
+      criticalPriority: _todayPriority!,
     );
 
     await HiveService.saveDailyCheckIn(checkIn);
@@ -143,56 +167,104 @@ class _HomeScreenState extends State<HomeScreen> {
     return PipBoyColors.error;
   }
 
-  Widget _buildBeforeStartSection() {
-    return RetroContainer(
-      title: 'ANTES DE EMPEZAR',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '2 MINUTOS',
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1,
-              color: PipBoyColors.primaryDim,
-            ),
+  Widget _buildPriorityInputView() {
+    return Column(
+      children: [
+        RetroContainer(
+          title: 'ANTES DE EMPEZAR',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '2 MINUTOS',
+                style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 1,
+                  color: PipBoyColors.primaryDim,
+                ),
+              ),
+              const SizedBox(height: 16),
+              RetroInput(
+                label: '¿CUÁL ES LA PRIORIDAD CRÍTICA HOY?',
+                controller: _criticalPriorityController,
+                hintText: 'DEFINE UNA SOLA COSA',
+                maxLines: 3,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          RetroInput(
-            label: '¿CUÁL ES LA PRIORIDAD CRÍTICA HOY?',
-            controller: _criticalPriorityController,
-            hintText: 'DEFINE UNA SOLA COSA',
-            maxLines: 3,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 24),
+        RetroButton(
+          label: 'GUARDAR PRIORIDAD',
+          onPressed: _savePriority,
+        ),
+      ],
     );
   }
 
-  Widget _buildIterationInfoSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: PipBoyColors.primaryDim,
-          width: 1,
-        ),
-        color: PipBoyColors.surfaceVariant,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'ITERACIÓN MÍNIMA: 20–60 MIN',
-            style: TextStyle(
+  Widget _buildMetricsView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Weekly reflection reminder if not completed
+        if (!_hasWeeklyReflection) _buildWeeklyReflectionReminder(),
+
+        // Priority display (read-only)
+        RetroContainer(
+          title: 'PRIORIDAD DE HOY',
+          child: Text(
+            _todayPriority!,
+            style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
               letterSpacing: 1,
+              height: 1.5,
+              fontWeight: FontWeight.bold,
+              color: PipBoyColors.primary,
             ),
           ),
-          
-        ],
-      ),
+        ),
+        const SizedBox(height: 24),
+
+        // Iteration info
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: PipBoyColors.primaryDim,
+              width: 1,
+            ),
+            color: PipBoyColors.surfaceVariant,
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ITERACIÓN MÍNIMA: 20–60 MIN',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Title
+        const Text(
+          'LAS 4 MÉTRICAS',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Question cards
+        _buildQuestionCards(),
+      ],
     );
   }
 
@@ -534,22 +606,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               if (_hasCompleted)
                 _buildCompletedView()
-              else ...[
-                _buildBeforeStartSection(),
-                const SizedBox(height: 24),
-                _buildIterationInfoSection(),
-                const SizedBox(height: 24),
-                const Text(
-                  ' 4 MÉTRICAS',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildQuestionCards(),
-              ],
+              else if (_hasPriority)
+                _buildMetricsView()
+              else
+                _buildPriorityInputView(),
             ],
           ),
         ),

@@ -8,11 +8,13 @@ class HiveService {
   static const String _userConfigBox = 'user_config';
   static const String _dailyCheckinsBox = 'daily_checkins';
   static const String _weeklyReflectionsBox = 'weekly_reflections';
+  static const String _dailyPrioritiesBox = 'daily_priorities';
   static const String _configKey = 'config';
 
   static Box<UserConfig>? _userBox;
   static Box<DailyCheckIn>? _checkinsBox;
   static Box<WeeklyReflection>? _weeklyBox;
+  static Box<String>? _prioritiesBox;
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -26,6 +28,7 @@ class HiveService {
     _userBox = await Hive.openBox<UserConfig>(_userConfigBox);
     _checkinsBox = await Hive.openBox<DailyCheckIn>(_dailyCheckinsBox);
     _weeklyBox = await Hive.openBox<WeeklyReflection>(_weeklyReflectionsBox);
+    _prioritiesBox = await Hive.openBox<String>(_dailyPrioritiesBox);
   }
 
   // User Config methods
@@ -87,6 +90,8 @@ class HiveService {
         'current_streak': 0,
         'perfect_days': 0,
         'average_score': 0.0,
+        'executed_priority_count': 0,
+        'executed_priority_total': 0,
       };
     }
 
@@ -98,6 +103,9 @@ class HiveService {
 
     // Calculate perfect days (score = 4)
     final perfectDays = checkIns.where((c) => c.score == 4).length;
+
+    // Veces que ejecutó la prioridad crítica (question3 = executedPriority)
+    final executedPriorityCount = checkIns.where((c) => c.question3).length;
 
     // Calculate average score
     final totalScore = checkIns.fold<int>(0, (sum, c) => sum + c.score);
@@ -121,6 +129,8 @@ class HiveService {
       'current_streak': currentStreak,
       'perfect_days': perfectDays,
       'average_score': averageScore,
+      'executed_priority_count': executedPriorityCount,
+      'executed_priority_total': totalDays,
     };
   }
 
@@ -164,5 +174,21 @@ class HiveService {
 
   static WeeklyReflection? getWeeklyReflectionByKey(String weekKey) {
     return _weeklyBox?.get(weekKey);
+  }
+
+  // Daily Priority methods
+  static Future<void> saveTodayPriority(String priority) async {
+    final key = _getTodayKey();
+    await _prioritiesBox?.put(key, priority);
+  }
+
+  static String? getTodayPriority() {
+    final key = _getTodayKey();
+    return _prioritiesBox?.get(key);
+  }
+
+  static bool hasTodayPriority() {
+    final key = _getTodayKey();
+    return _prioritiesBox?.containsKey(key) ?? false;
   }
 }
